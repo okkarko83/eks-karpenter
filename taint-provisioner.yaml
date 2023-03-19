@@ -1,0 +1,35 @@
+apiVersion: karpenter.sh/v1alpha5
+kind: Provisioner
+metadata:
+  name: my-application
+spec:
+  requirements:
+    - key: karpenter.sh/capacity-type
+      operator: In
+      values: ["spot"]
+    - key: node.kubernetes.io/instance-type
+      operator: In
+      values: ["t3.micro"]
+  taints:
+    - key: varcamp
+      value: "true"
+      effect: "NoSchedule"
+  labels:
+    enviroment: loadtest
+  limits:
+    resources:
+      cpu: 100
+      memory: 100Gi
+  providerRef:
+    name: default
+  ttlSecondsAfterEmpty: 30
+---
+apiVersion: karpenter.k8s.aws/v1alpha1
+kind: AWSNodeTemplate
+metadata:
+  name: my-application
+spec:
+  subnetSelector:
+    Name: "{SUBNET_NAME_A},{SUBNET_NAME_B}"
+  securityGroupSelector:
+    Name: "{YOUR_EKS_SECURIY_GROUP}"

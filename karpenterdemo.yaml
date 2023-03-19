@@ -1,0 +1,57 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: varcamp-playground
+  region: ap-southeast-1
+  version: "1.24"
+  tags:
+    karpenter.sh/discovery: varcamp-playground
+vpc:
+  id: vpc-06d3bf4fb93c5fc0b
+  cidr: 10.0.0.0/16
+  subnets:
+    private:
+      ap-southeast-1a:
+        id: subnet-0c9630db85657e628
+      ap-southeast-1b:
+        id: subnet-0efdb0dea026e2df9
+    public:
+      ap-southeast-1a:
+        id: subnet-0f09b52ffb0f6e74b
+      ap-southeast-1b:
+        id: subnet-084999841455a0bdb
+
+managedNodeGroups:
+  - instanceType: t2.medium
+    amiFamily: AmazonLinux2
+    name: varcamp-playground-ng
+    desiredCapacity: 2
+    minSize: 1
+    maxSize: 3
+iam:
+  withOIDC: true
+  serviceAccounts:
+  - metadata:
+      name: karpenter
+      namespace: karpenter
+    roleName: varcamp-playground-karpenter
+    attachPolicyARNs:
+    - arn:aws:iam::094459956621:policy/KarpenterControllerPolicy-varcamp-playground
+    roleOnly: true
+
+iamIdentityMappings:
+- arn: "arn:aws:iam::094459956621:role/KarpenterNodeRole-094459956621"
+  username: system:node:{{EC2PrivateDNSName}}
+  groups:
+  - system:bootstrappers
+  - system:nodes
+
+addons:
+- name: vpc-cni
+  version: latest
+  attachPolicyARNs:
+    - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+- name: coredns
+  version: latest
+- name: kube-proxy
+  version: latest

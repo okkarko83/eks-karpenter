@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: myapplication
+  name: myapplication
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: myapplication
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: myapplication
+    spec:
+      containers:
+      - image: nginx:latest
+        name: nginx
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+          limits:
+            cpu: "200m"
+            memory: "512Mi"
+      nodeSelector:
+        enviroment: loadtest
+      tolerations:
+      - key: "varcamp"
+        value: "true"
+        effect: "NoSchedule"
+status: {}

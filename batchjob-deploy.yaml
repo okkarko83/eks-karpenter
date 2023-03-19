@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pi
+spec:
+  template:
+    metadata:
+        labels:
+          app: batch
+    spec:
+      nodeSelector:
+        batchjob: batchapp
+      containers:
+      - name: pi
+        image: perl:5.34.0
+        command: ["perl",  "-Mbignum=bpi", "-wle", "print bpi(2000)"]
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "8G"
+          limits:
+            cpu: "200m"
+            memory: "14G"
+      restartPolicy: Never
+  backoffLimit: 4

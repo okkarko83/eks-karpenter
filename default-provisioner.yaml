@@ -1,0 +1,28 @@
+apiVersion: karpenter.sh/v1alpha5
+kind: Provisioner
+metadata:
+  name: default
+spec:
+  requirements:
+    - key: karpenter.sh/capacity-type
+      operator: In
+      values: ["spot"]
+    - key: karpenter.k8s.aws/instance-category
+      operator: In
+      values: ["t"]
+  limits:
+    resources:
+      cpu: 1000
+  providerRef:
+    name: default
+  ttlSecondsAfterEmpty: 30
+---
+apiVersion: karpenter.k8s.aws/v1alpha1
+kind: AWSNodeTemplate
+metadata:
+  name: default
+spec:
+  subnetSelector:
+    Name: "{SUBNET_NAME_A},{SUBNET_NAME_B}"
+  securityGroupSelector:
+    Name: "{YOUR_EKS_SECURIY_GROUP}"
